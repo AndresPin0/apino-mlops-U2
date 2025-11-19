@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "7861f234-a433-4f3f-bf18-125fb8592b7e",
+		"name": "MLops",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38513986"
+	},
+	"item": [
+		{
+			"name": "No Enfermo",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Enfermedad Leve",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/predict?severity=3&duration_days=10&comorbidity_count=0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"predict"
+					],
+					"query": [
+						{
+							"key": "severity",
+							"value": "3"
+						},
+						{
+							"key": "duration_days",
+							"value": "10"
+						},
+						{
+							"key": "comorbidity_count",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enfermedad Aguda",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/predict?severity=8&duration_days=3&comorbidity_count=0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"predict"
+					],
+					"query": [
+						{
+							"key": "severity",
+							"value": "8"
+						},
+						{
+							"key": "duration_days",
+							"value": "3"
+						},
+						{
+							"key": "comorbidity_count",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enfermedad Crónica",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
