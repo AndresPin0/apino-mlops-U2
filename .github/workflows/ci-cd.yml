@@ -19,6 +19,9 @@ jobs:
     name: Comment PR Start
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      issues: write
+      pull-requests: write
     steps:
       - name: Comment PR - Start
         uses: actions/github-script@v7
@@ -26,7 +29,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: 'CI/CD en acción. Ejecutando tareas …'
@@ -60,6 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && success()
     needs: [comment-pr-start, test]
+    permissions:
+      issues: write
+      pull-requests: write
     steps:
       - name: Comment PR - Success
         uses: actions/github-script@v7
@@ -67,7 +73,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: 'CI/CD terminado con éxito.'
