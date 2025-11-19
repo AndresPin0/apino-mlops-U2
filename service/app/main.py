@@ -7,10 +7,8 @@ from pathlib import Path
 
 app = FastAPI(title="Demo Enfermedades – FastAPI")
 
-# Archivo para almacenar estadísticas
-STATS_FILE = Path("/app/stats.json")
+STATS_FILE = Path(os.getenv("STATS_FILE_PATH", "/app/stats.json"))
 
-# Inicializar estadísticas si no existen
 def init_stats():
     """Inicializa el archivo de estadísticas si no existe"""
     if not STATS_FILE.exists():
@@ -46,13 +44,11 @@ def update_stats(prediction: str):
     """Actualiza las estadísticas con una nueva predicción"""
     stats = load_stats()
     
-    # Actualizar conteo por categoría
     if prediction in stats["total_by_category"]:
         stats["total_by_category"][prediction] += 1
     else:
         stats["total_by_category"][prediction] = 1
     
-    # Agregar a últimas predicciones (mantener solo las últimas 5)
     stats["last_predictions"].append({
         "status": prediction,
         "timestamp": datetime.now().isoformat()
@@ -60,7 +56,6 @@ def update_stats(prediction: str):
     if len(stats["last_predictions"]) > 5:
         stats["last_predictions"] = stats["last_predictions"][-5:]
     
-    # Actualizar fecha de última predicción
     stats["last_prediction_date"] = datetime.now().isoformat()
     
     save_stats(stats)
@@ -82,30 +77,22 @@ def rule_based_classifier(severity: float, duration_days: int, comorbidity_count
     duration_days = max(0, int(duration_days))
     comorbidity_count = max(0, int(comorbidity_count))
 
-    # No enfermo: sin síntomas, duración 0, sin comorbilidades
     if severity == 0 and duration_days == 0 and comorbidity_count == 0:
         return "NO ENFERMO"
-
-    # Terminal: severidad máxima + múltiples comorbilidades + duración prolongada
-    # O severidad muy alta con múltiples factores de riesgo
     if (severity >= 9 and comorbidity_count >= 3) or \
        (severity >= 8 and duration_days >= 180 and comorbidity_count >= 2) or \
        (severity == 10):
         return "ENFERMEDAD TERMINAL"
 
-    # Crónica: duración larga + comorbilidades
     if duration_days >= 90 and comorbidity_count >= 2:
         return "ENFERMEDAD CRÓNICA"
 
-    # Aguda: severidad alta o inicio reciente muy intenso
     if severity >= 7 or (duration_days <= 14 and severity >= 5):
         return "ENFERMEDAD AGUDA"
 
-    # Leve: síntomas suaves o moderados, pocos días
     if 1 <= severity < 7 or (duration_days < 30 and comorbidity_count == 0):
         return "ENFERMEDAD LEVE"
 
-    # Default
     return "NO ENFERMO"
 
 
@@ -118,7 +105,6 @@ def predict(
     """Realiza una predicción del estado de enfermedad del paciente"""
     label = rule_based_classifier(severity, duration_days, comorbidity_count)
     
-    # Actualizar estadísticas
     update_stats(label)
     
     return JSONResponse({"status": label})
